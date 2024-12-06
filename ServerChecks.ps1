@@ -16,7 +16,7 @@ Write-Log "=== Starting Server Checks ===" "Cyan"
 #check powershell version
 Write-Log "Checking Powershell Version" "Yellow"
 if ($PSVersionTable.PSVersion.Major -lt 3) {
-    Write-Log "Powershell version is less than 3.0, Will attempt o update" "Red"
+    Write-Log "Powershell version is less than 3.0, Will attempt to update" "Red"
 
 } else {
     Write-Log "Powershell version is greater than 3.0" "Green"
@@ -42,8 +42,21 @@ if (!$winrmService -Or $winrmService.Status -ne "Running") {
     Write-Log "WinRM service has been started" "Green"
 }
 
-#Enable TLS 1.2
-Write-Log "Enabling TLS 1.2" "Yellow"
-if([Net.ServicePointManager]::SecurityProtocol -notcontains "Tls12") {
-    
+#Enable TLS 1.2 need to work on this
+Write-Log "Checking TLS 1.2 configuration..." "Yellow"
+$tls12ServerKey = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server"
+$tls12ClientKey = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Client"
+
+New-Item -Path $tls12ServerKey -Force | Out-Null
+New-Item -Path $tls12ClientKey -Force | Out-Null
+
+Set-ItemProperty -Path $tls12ServerKey -Name "Enabled" -Value 1
+Set-ItemProperty -Path $tls12ClientKey -Name "Enabled" -Value 1
+
+$enabledProtocols = [Net.ServicePointManager]::SecurityProtocol
+if ($enabledProtocols -notcontains [Net.SecurityProtocolType]::Tls12) {
+    [Net.ServicePointManager]::SecurityProtocol += [Net.SecurityProtocolType]::Tls12
+    Write-Log "TLS 1.2 has been successfully enabled." "Green"
+} else {
+    Write-Log "TLS 1.2 is already enabled." "Green"
 }
