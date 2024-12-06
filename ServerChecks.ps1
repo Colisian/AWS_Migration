@@ -70,20 +70,18 @@ if ($enabledProtocols -notcontains [Net.SecurityProtocolType]::Tls12) {
 }
 
 # Disk space Check
-Write-Log "Checkigndisk space on all drives..." "Yellow"
-$drives = Get-WmiObject Win32_LogicalDisk | Where-Object { $_.DriveType -eq 3 }
+Write-Log "Checking disk space on all drives..." "Yellow"
+$drives = Get-WmiObject Win32_LogicalDisk | Where-Object { $_.DriveType -eq 3 } # Fixed drives only
 foreach ($drive in $drives) {
-    $freeSpaceGB = [math]::Round($drive.FreeSpace /1GB,2)
-    $totalSpcaeGB = [math]::Round($drive.Size/1GB,2)
-    $FreeSpaceGB = [math]::Round($drive.FreeSpace / $drive.Size * 100, 2)
-    
-    $ThresholdGB =5 
-    $threholdPercent = 13
+    $freeSpaceGB = [math]::Round($drive.FreeSpace / 1GB, 2)
+    $freePercentage = [math]::Round(($drive.FreeSpace / $drive.Size) * 100, 2)
 
-    if($freeSpace -ge $thresholdGB -or $freeSpacePercentage -ge $thresholdPrecent){
-        Write-Log "Drive $(drive.DeviceID) has enough free space ($freeSpaceGB GB, $freeSpacePercentage%)" "Green"
+    $thresholdGB = 5
+    $thresholdPercent = 13
 
+    if ($freeSpaceGB -ge $thresholdGB -or $freePercentage -ge $thresholdPercent) {
+        Write-Log "Drive $($drive.DeviceID): Total space: $([math]::Round($drive.Size / 1GB, 2)) GB, Free space: $freeSpaceGB GB ($freePercentage%). Free space is sufficient." "Green"
     } else {
-        Write-Log "Drive $(drive.DeviceID) does not have enough free space ($freeSpaceGB GB, $freeSpacePercentage%)" "Red"
+        Write-Log "Drive $($drive.DeviceID): Total space: $([math]::Round($drive.Size / 1GB, 2)) GB, Free space: $freeSpaceGB GB ($freePercentage%). Free space is below the threshold." "Red"
     }
 }
