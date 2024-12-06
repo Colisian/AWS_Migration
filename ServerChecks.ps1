@@ -42,6 +42,14 @@ if (!$winrmService -Or $winrmService.Status -ne "Running") {
     Write-Log "WinRM service has been started" "Green"
 }
 
+#Test WinRM Connectity
+Write-Log "Testing WinRm Connectivity" "Yellow"
+if (Test-WSMan _ComputerName localhost -ErrorAction SilentlyContinue) {
+    Write-Log "WinRm connectivity is working" "Green"
+} else {
+    Write-Log "WinRM connectivity is not working" "Red"
+}
+
 #Enable TLS 1.2 need to work on this
 Write-Log "Checking TLS 1.2 configuration..." "Yellow"
 $tls12ServerKey = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server"
@@ -59,4 +67,23 @@ if ($enabledProtocols -notcontains [Net.SecurityProtocolType]::Tls12) {
     Write-Log "TLS 1.2 has been successfully enabled." "Green"
 } else {
     Write-Log "TLS 1.2 is already enabled." "Green"
+}
+
+# Disk space Check
+Write-Log "Checkigndisk space on all drives..." "Yellow"
+$drives = Get-WmiObject Win32_LogicalDisk | Where-Object { $_.DriveType -eq 3 }
+foreach ($drive in $drives) {
+    $freeSpaceGB = [math]::Round($drive.FreeSpace /1GB,2)
+    $totalSpcaeGB = [math]::Round ($drive.Size/1GB,2)
+    $FreeSpaceGB = [math]::Round($drive.FreeSpace / $drive.Size * 100, 2)
+    
+    $ThresholdGB =5 
+    $threholdPercent = 13
+
+    if($freeSpace -ge $thresholdGB -or $freeSpacePercentage -ge $thresholdPrecent){
+        Write-Log "Drive $(drive.DeviceID) has enough free space ($freeSpaceGB GB, $freeSpacePercentage%)" "Green"
+
+    } else {
+        Write-Log "Drive $(drive.DeviceID) does not have enough free space ($freeSpaceGB GB, $freeSpacePercentage%)" "Red"
+    }
 }
