@@ -24,7 +24,7 @@ if ($PSVersionTable.PSVersion.Major -lt 3) {
 
 # Check .NET Version
 Write-Log "Checking .NET Version" "Yellow"
-$dotNetVersion = Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full' | Get-ItemPropertyValue -Name Release | Select-Object -ExpandProperty Release
+$dotNetVersion = Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full' | Get-ItemProperty -Name Release | Select-Object -ExpandProperty Release
 if ($dotNetVersion -lt 528040) {
     Write-Log "NET version is less than 4.9.0, Will attempt to update" "Red"
 
@@ -44,7 +44,7 @@ if (!$winrmService -Or $winrmService.Status -ne "Running") {
 
 #Test WinRM Connectity
 Write-Log "Testing WinRm Connectivity" "Yellow"
-if (Test-WSMan _ComputerName localhost -ErrorAction SilentlyContinue) {
+if (Test-WSMan -ComputerName localhost -ErrorAction SilentlyContinue) {
     Write-Log "WinRm connectivity is working" "Green"
 } else {
     Write-Log "WinRM connectivity is not working" "Red"
@@ -61,12 +61,20 @@ New-Item -Path $tls12ClientKey -Force | Out-Null
 Set-ItemProperty -Path $tls12ServerKey -Name "Enabled" -Value 1
 Set-ItemProperty -Path $tls12ClientKey -Name "Enabled" -Value 1
 
+#check if TLS1.2 is already included
 $enabledProtocols = [Net.ServicePointManager]::SecurityProtocol
-if ($enabledProtocols -notcontains [Net.SecurityProtocolType]::Tls12) {
-    [Net.ServicePointManager]::SecurityProtocol += [Net.SecurityProtocolType]::Tls12
+if ($enabledProtocols -band [Net.SecurityProtocolType]::Tls12) {
+   
     Write-Log "TLS 1.2 has been successfully enabled." "Green"
 } else {
-    Write-Log "TLS 1.2 is already enabled." "Green"
+    try {
+        #enable TLS 1.2
+        [Net.ServicePointManager]::SecurityProtocol += [Net.ServicePointManager]::Tls12
+        Write-Log "TLS 1.2 has been successfully enabled." "Green"
+    } catch {
+        Write-Log "TLS 1.2 is not enabled." "Red"        
+    }
+
 }
 
 # Disk space Check
