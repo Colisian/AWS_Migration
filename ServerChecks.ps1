@@ -74,7 +74,7 @@ Write-Log "Checkigndisk space on all drives..." "Yellow"
 $drives = Get-WmiObject Win32_LogicalDisk | Where-Object { $_.DriveType -eq 3 }
 foreach ($drive in $drives) {
     $freeSpaceGB = [math]::Round($drive.FreeSpace /1GB,2)
-    $totalSpcaeGB = [math]::Round ($drive.Size/1GB,2)
+    $totalSpcaeGB = [math]::Round($drive.Size/1GB,2)
     $FreeSpaceGB = [math]::Round($drive.FreeSpace / $drive.Size * 100, 2)
     
     $ThresholdGB =5 
