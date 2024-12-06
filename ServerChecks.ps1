@@ -26,10 +26,10 @@ if ($PSVersionTable.PSVersion.Major -lt 3) {
 Write-Log "Checking .NET Version" "Yellow"
 $dotNetVersion = Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full' | Get-ItemProperty -Name Release | Select-Object -ExpandProperty Release
 if ($dotNetVersion -lt 528040) {
-    Write-Log "NET version is less than 4.9.0, Will attempt to update" "Red"
+    Write-Log "NET version is less than 4.0, Need attempt to update" "Red"
 
 } else {
-    Write-Log "NET version is greater than 4.9.0" "Green"
+    Write-Log "NET version is greater than 4.0" "Green"
 }
 
 # Enable and Configure WinRM
@@ -93,3 +93,5 @@ foreach ($drive in $drives) {
         Write-Log "Drive $($drive.DeviceID): Total space: $([math]::Round($drive.Size / 1GB, 2)) GB, Free space: $freeSpaceGB GB ($freePercentage%). Free space is below the threshold." "Red"
     }
 }
+
+Write-Log "=== Ending Server Checks ===" "Cyan"
