@@ -16,7 +16,7 @@ Write-Log "=== Starting Server Checks ===" "Cyan"
 #check powershell version
 Write-Log "Checking Powershell Version" "Yellow"
 if ($PSVersionTable.PSVersion.Major -lt 3) {
-    Write-Log "Powershell version is less than 3.0, Will attempt to update" "Red"
+    Write-Log "Powershell version is less than 3.0, Will attempt o update" "Red"
 
 } else {
     Write-Log "Powershell version is greater than 3.0" "Green"
