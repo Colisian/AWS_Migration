@@ -13,6 +13,41 @@ function Write-Log {
 #Write to log file
 Write-Log "=== Starting Server Checks ===" "Cyan"
 
+# create a local admin account
+Write-Log "Creating Local Admin Account" "Yellow"
+try {
+    #username and password
+    $username = "trianz"
+    $password = ConvertTo-SecureString "" -AsPlainText -Force
+
+    #check if the account already exists
+    if (Get-LocalUser -Name $username -ErrorAction SilentlyContinue) {
+        Write-Log "Local admin account exists" "Green"
+    } else {
+        #create the local admin account
+        New-LocalUser -Name $username -Password $password -Fullname "Trianz admin" 
+        -Description "Local admin account for trianz" -UserMayNotChangePassword -PasswordNeverExpires -AccountNeverExpires
+        
+        #add to administrtators group
+        Add-LocalGroupMember -Group "Administrators" -Member $username
+
+        Write-Log "Local admin account created" "Green"
+    }
+} catch {
+    Write-Log "Failed to create local admin account" "Red"
+}
+
+#check Powershell Execution Policy
+Write-Log "Checking Powershell Execution Policy" "Yellow"
+try {
+    Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force
+    Write-Log "Powershell Execution Policy has been set to Unrestricted" "Green"
+}
+catch {
+    Write-Log "Failed to set Powershell Execution Policy to Unrestricted" "Red"
+}
+
+
 #check powershell version
 Write-Log "Checking Powershell Version" "Yellow"
 if ($PSVersionTable.PSVersion.Major -lt 3) {
