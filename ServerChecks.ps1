@@ -37,7 +37,15 @@ try {
     Write-Log "Failed to create local admin account" "Red"
 }
 
-
+#check Powershell Execution Policy
+Write-Log "Checking Powershell Execution Policy" "Yellow"
+try {
+    Set-ExecutionPolicy -ExecutionPolicy Unrestricted -Scope LocalMachine -Force
+    Write-Log "Powershell Execution Policy has been set to Unrestricted" "Green"
+}
+catch {
+    Write-Log "Failed to set Powershell Execution Policy to Unrestricted" "Red"
+}
 
 
 #check powershell version
