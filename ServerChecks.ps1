@@ -129,3 +129,4 @@ foreach ($drive in $drives) {
 }
 
 Write-Log "=== Ending Server Checks ===" "Cyan"
+ 
