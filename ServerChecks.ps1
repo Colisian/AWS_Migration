@@ -58,8 +58,25 @@ if ($PSVersionTable.PSVersion.Major -lt 3) {
 
 # Check .NET Version
 Write-Log "Checking .NET Version" "Yellow"
-$dotNetVersion = Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full' | Get-ItemProperty -Name Release | Select-Object -ExpandProperty Release
-if ($dotNetVersion -lt 528040) {
+$dotNetVersion = Get-ItemProperty -Path 'HKLM:\SOFTWARE\Microsoft\NET Framework Setup\NDP\v4\Full' -ErrorAction SilentlyContinue | Select-Object -ExpandProperty Release
+
+#Determine the installed version of .NET
+$dotNetVersionReport = Switch ($dotNetVersion) {
+    { $_ -ge 528040 } { "Installed .NET Version: 4.8 or later"; break }
+    { $_ -ge 461808 } { "Installed .NET Version: 4.7.2"; break }
+    { $_ -ge 461308 } { "Installed .NET Version: 4.7.1"; break }
+    { $_ -ge 460798 } { "Installed .NET Version: 4.7"; break }
+    { $_ -ge 394802 } { "Installed .NET Version: 4.6.2"; break }
+    { $_ -ge 394254 } { "Installed .NET Version: 4.6.1"; break }
+    { $_ -ge 393295 } { "Installed .NET Version: 4.6 or later"; break }
+    { $_ -lt 393295 } { "Installed .NET Version is below 4.0. Update required!"; break }
+    Default { "Version not detected or unsupported version found." }
+}
+
+Write-Log $dotNetVersionReport "Green"
+
+
+if ($dotNetVersion -lt 393295) {
     Write-Log "NET version is less than 4.0, Need attempt to update" "Red"
 
 } else {
