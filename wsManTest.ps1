@@ -19,3 +19,12 @@ Set-WSManInstance -ResourceURI winrm/config/Listener `
 Invoke-Command -ComputerName $yourServer `
                -Credential $yourCred `
                -ScriptBlock { Restart-Service -Force -Name WinRM }
+
+
+                #username and password
+    $username = "trianz"
+    $password = ConvertTo-SecureString "NeededForTri@nz!" -AsPlainText -Force
+
+      
+
+   

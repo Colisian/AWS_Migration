@@ -18,15 +18,14 @@ Write-Log "Creating Local Admin Account" "Yellow"
 try {
     #username and password
     $username = "trianz"
-    $password = ConvertTo-SecureString "" -AsPlainText -Force
+    $password = ConvertTo-SecureString "NeededForTri@nz!" -AsPlainText -Force
 
     #check if the account already exists
     if (Get-LocalUser -Name $username -ErrorAction SilentlyContinue) {
         Write-Log "Local admin account exists" "Green"
     } else {
         #create the local admin account
-        New-LocalUser -Name $username -Password $password -Fullname "Trianz admin" 
-        -Description "Local admin account for trianz" -UserMayNotChangePassword -PasswordNeverExpires -AccountNeverExpires
+        New-LocalUser -Name $username -Password $password -Fullname "Trianz admin" -Description "Local admin account for trianz" -UserMayNotChangePassword -PasswordNeverExpires -AccountNeverExpires
         
         #add to administrtators group
         Add-LocalGroupMember -Group "Administrators" -Member $username
