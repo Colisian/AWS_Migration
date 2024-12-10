@@ -101,6 +101,27 @@ if (Test-WSMan -ComputerName localhost -ErrorAction SilentlyContinue) {
     Write-Log "WinRM connectivity is not working" "Red"
 }
 
+#Checking winRM on HTTPS
+try {
+    $httpsListener = Get-ChildItem -Path WSMan:\localhost\Listener\ | Where-Object { $_.Transport -eq "HTTPS" }
+    if ($httpsListener) {
+        $listenerDetails = $httpsListener | Select-Object -Property Address, Transport, Port, CertificateThumbprint
+        Write-Log "WinRM HTTPS listener is enabled" "Green"
+        Write-Log "Listener Details:" "Green"
+        $listenerDetails | ForEach-Object {
+            Write-Log "Address: $($_.Address)"
+            Write-Log "Transport: $($_.Transport)"
+            Write-Log "Port: $($_.Port)"
+            Write-Log "Certificate Thumbprint: $($_.CertificateThumbprint)"
+        }
+    } else {
+        Write-Log "WinRM HTTPS Listener is NOT configured" "Red"
+    }
+} catch {
+    Write-Log "Error while checking WinRM HTTPS Listener. Error: $_" "Red"
+
+}
+
 #Enable TLS 1.2 need to work on this
 Write-Log "Checking TLS 1.2 configuration..." "Yellow"
 $tls12ServerKey = "HKLM:\SYSTEM\CurrentControlSet\Control\SecurityProviders\SCHANNEL\Protocols\TLS 1.2\Server"
